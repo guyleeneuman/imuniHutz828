@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תיאום אימוני חוץ ביסל"ח- אקסל</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <img class="navbar" src="assets/logoss/logos.png" alt="icon 1">
+  <img class="title" src="assets/titles/mainTitle.png" alt="icon 1">
+
+  <!-- כפתור אקסל -->
+  <button class="excelBtn" onclick="exportToExcel()">
+    ייצוא כל הטפסים לאקסל
+  </button>
+
+  <img class="byGuylee" src="assets/titles/image 4.png" alt="icon 1">
+
+</body>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAokloPY4V6yRlX44MXSq4wUeSem-CABNo",
+  authDomain: "imunihutz828.firebaseapp.com",
+  databaseURL: "https://imunihutz828-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "imunihutz828",
+  storageBucket: "imunihutz828.firebasestorage.app",
+  messagingSenderId: "873714301412",
+  appId: "1:873714301412:web:986055e64c70ffeaf72ff1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// חייבים להוסיף את הספרייה של Excel
+import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.2/package/xlsx.mjs";
+
+window.exportToExcel = async function () {
+
+  const snapshot = await get(ref(db, "training_forms"));
+
+  if (!snapshot.exists()) {
+    alert("אין נתונים לייצוא");
+    return;
+  }
+
+  const data = snapshot.val();
+
+  // הופכים ל־JSON עם כותרות בעברית
+  const exportData = Object.values(data).map(item => ({
+    // "תאריך יצירה": new Date(item.createdAt || Date.now()).toLocaleString(),
+    "סוג אימון": item.training_type || "",
+    "מספר הקצאה": item.allocation_number || "",
+    "שבוע": item.week_number || "",
+    "תאריך כניסה": item.entry_date || "",
+    "תאריך יציאה": item.exit_date || "",
+    "שעת כניסה": item.entry_time || "",
+    "שעת יציאה": item.exit_time || "",
+    "שם": item.name || "",
+    "טלפון": item.phone || "",
+    "תפקיד": item.job || "",
+    "חיילים": item.soldiers || "",
+    "יחידה": item.unit || "",
+    "פירוט": item.details || "",
+    "הערות": item.notes || ""
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "טפסים");
+
+  XLSX.writeFile(workbook, "training_forms.xlsx");
+};
+
+</script>
+
+<style>
+.excelBtn {
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  padding: 15px 25px;
+  border-radius: 50px;
+  border: none;
+
+  background: #e56e24;
+  color: white;
+
+  font-size: 1.2rem;
+  font-family: "secular";
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.excelBtn:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.6));
+}
+</style>
+
+</html>

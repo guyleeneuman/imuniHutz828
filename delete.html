@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>אימונים וניהול</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+<img class="navbar" src="assets/logoss/logos.png" alt="icon">
+
+<div id="cardsContainer"></div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  get,
+  remove,
+  onValue
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAokloPY4V6yRlX44MXSq4wUeSem-CABNo",
+  authDomain: "imunihutz828.firebaseapp.com",
+  databaseURL: "https://imunihutz828-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "imunihutz828",
+  storageBucket: "imunihutz828.firebasestorage.app",
+  messagingSenderId: "873714301412",
+  appId: "1:873714301412:web:986055e64c70ffeaf72ff1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const container = document.getElementById("cardsContainer");
+
+// 📌 טעינה חיה (רילטיים)
+function loadData() {
+
+  const dbRef = ref(db, "training_forms");
+
+  onValue(dbRef, (snapshot) => {
+
+    container.innerHTML = "";
+
+    if (!snapshot.exists()) return;
+
+    const data = snapshot.val();
+
+    Object.keys(data).forEach(id => {
+
+      const item = data[id];
+
+      container.innerHTML += `
+        <div class="card">
+          
+          <!-- כפתור מחיקה -->
+          <button class="deleteBtn" onclick="deleteItem('${id}')">✖</button>
+
+
+          <p><b>סוג אימון:</b> ${item.training_type || ""}</p>
+          <p><b>מספר הקצאה:</b> ${item.allocation_number || ""}</p>
+          <p><b>שבוע:</b> ${item.week_number || ""}</p>
+          <p><b>יחידה:</b> ${item.unit || ""}</p>
+          <p><b>פירוט:</b>${item.details || "אין הערות"}</p>
+
+
+          <hr>
+
+          <p><b>שם:</b> ${item.name || ""}</p>
+          <p><b>טלפון:</b> ${item.phone || ""}</p>
+          <p><b>חיילים:</b> ${item.soldiers || ""}</p>
+
+          <hr>
+
+          <p><b>תאריכים:</b> ${item.entry_date || ""} → ${item.exit_date || ""}</p>
+          <p><b>שעות:</b> ${item.entry_time || ""} → ${item.exit_time || ""}</p>
+
+          <p><b>הערות:</b> ${item.notes || ""}</p>
+
+        </div>
+      `;
+    });
+  });
+}
+
+// 📌 מחיקה
+window.deleteItem = async function(id) {
+
+  const ok = confirm("למחוק את האימון?");
+
+  if (!ok) return;
+
+  await remove(ref(db, "training_forms/" + id));
+};
+
+loadData();
+
+</script>
+
+<style>
+body {
+  margin: 0;
+  font-family: "secular";
+  direction: rtl;
+
+  font-size: 1.2rem;
+}
+
+#cardsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+padding-top: 100px;
+padding-right: 10px;
+padding-left: 30px;
+  justify-content: center;
+}
+
+.card {
+  width: 70vw;
+  background: rgb(255, 255, 245);
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  position: relative;
+}
+
+.card h3 {
+  margin-top: 0;
+  color: #e56e24;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: red;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  transform: scale(1.1);
+}
+</style>
+
+</body>
+</html>

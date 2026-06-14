@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תיאום אימוני חוץ ביסל"ח
+  </title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <img class="navbar" src="assets/logoss/logos.png" alt="icon 1">
+    <img class="title" src="assets/titles/title2.png" alt="icon 1">
+
+<form id="contactForm" class="pillForm">
+<div class="section">
+  <h3>פרטי אימון</h3>
+</div>
+  <input type="text" name="training_type" placeholder="סוג האימון">
+  <input type="text" name="allocation_number" placeholder="מספר הקצאה">
+  <input type="number" name="week_number" placeholder="מספר שבוע">
+
+<!-- תאריכים -->
+<div class="singleRange">
+  <div class="rangeTitle">תאריך כניסה ← יציאה</div>
+  <div class="rangeInputs">
+    <input type="date" id="entryDate" name="entry_date" required>
+    <input type="date" id="exitDate" name="exit_date" required>
+  </div>
+</div>
+
+<div class="singleRange">
+  <div class="rangeTitle">שעת כניסה ← יציאה</div>
+  <div class="rangeInputs">
+    <input type="time" id="entryTime" name="entry_time" required>
+    <input type="time" id="exitTime" name="exit_time" required>
+  </div>
+</div>
+
+
+  <!-- =========================
+       פרטי מפקד
+  ========================== -->
+<div class="section">
+  <h3>פרטי מפקד</h3>
+  <input type="text" name="user_name" placeholder="שם מלא">
+</div>
+  <input type="tel" name="phone_number" placeholder="מס' טלפון">
+  <input type="text" name="job" placeholder="תפקיד">
+  <input type="number" name="solider_number" placeholder="מס' חיילים">
+    <!-- חטיבה -->
+  <div class="dropdown">
+    <div class="dropdownSelected" id="selectedUnit">בחר חטיבה</div>
+
+    <div class="dropdownList" id="unitList">
+      <div class="dropdownItem" data-value="צנחנים"><img src="assets/icons/צנחנים.png"> צנחנים</div>
+      <div class="dropdownItem" data-value="כפיר"><img src="assets/icons/כפיר.png"> כפיר</div>
+      <div class="dropdownItem" data-value="גבעתי"><img src="assets/icons/גבעתי.png"> גבעתי</div>
+      <div class="dropdownItem" data-value="נחל"><img src="assets/icons/נחל.png"> נחל</div>
+      <div class="dropdownItem" data-value="מרום"><img src="assets/icons/מרום.png"> מרום</div>
+      <div class="dropdownItem" data-value="גולני"><img src="assets/icons/גולני.png"> גולני</div>
+      <div class="dropdownItem noImg" data-value="אחר">אחר</div>
+    </div>
+
+    <input type="hidden" name="unit" id="unitInput">
+  </div>
+  <textarea name="notes" placeholder="הערות:
+ "></textarea>
+  <textarea class="detailsField" name="details" placeholder="פירוט:
+גדוד / סיירת / אחר"></textarea>
+
+
+
+  <!-- שליחה -->
+  <button type="submit" class="submitBtn">
+    <img src="assets/buttons/sendBtn.png" alt="הגשה">
+  </button>
+
+</form>
+<div id="overlay"></div>
+
+<div id="successPopup">
+  <img src="assets/backgaround/Group 65.png" alt="success">
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAokloPY4V6yRlX44MXSq4wUeSem-CABNo",
+  authDomain: "imunihutz828.firebaseapp.com",
+  databaseURL: "https://imunihutz828-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "imunihutz828",
+  storageBucket: "imunihutz828.firebasestorage.app",
+  messagingSenderId: "873714301412",
+  appId: "1:873714301412:web:986055e64c70ffeaf72ff1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const form = document.getElementById("contactForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    // פרטי אימון
+    // place: form.place.value.trim(),
+    training_type: form.training_type.value.trim(),
+    allocation_number: form.allocation_number.value.trim(),
+    week_number: form.week_number.value.trim(),
+
+    // תאריכים ושעות
+    entry_date: form.entry_date.value,
+    exit_date: form.exit_date.value,
+    entry_time: form.entry_time.value,
+    exit_time: form.exit_time.value,
+
+    // מפקד
+    name: form.user_name.value.trim(),
+    phone: form.phone_number.value.trim(),
+    job: form.job.value.trim(),
+    soldiers: form.solider_number.value.trim(),
+
+    // יחידה (dropdown)
+    unit: document.getElementById("unitInput").value.trim(),
+
+    // טקסטים
+    details: form.details.value.trim(),
+    notes: form.notes.value.trim(),
+
+    createdAt: Date.now()
+  };
+
+  try {
+    await push(ref(db, "training_forms"), data);
+
+    showPopup();
+    form.reset();
+    document.getElementById("selectedUnit").innerText = "בחר חטיבה";
+    document.getElementById("unitInput").value = "";
+
+  } catch (err) {
+    console.error(err);
+    alert("שגיאה בשליחה ל-Firebase");
+  }
+});
+</script>
+<script>
+/* =========================
+   DROPDOWN
+========================= */
+
+const selected = document.getElementById("selectedUnit");
+const list = document.getElementById("unitList");
+const hiddenInput = document.getElementById("unitInput");
+const dropdown = document.querySelector(".dropdown");
+
+// פתיחה / סגירה
+selected.addEventListener("click", (e) => {
+    e.stopPropagation();
+    list.style.display = list.style.display === "block" ? "none" : "block";
+});
+
+// בחירה
+document.querySelectorAll(".dropdownItem").forEach(item => {
+    item.addEventListener("click", () => {
+        const value = item.getAttribute("data-value");
+        const img = item.querySelector("img");
+
+        hiddenInput.value = value;
+
+        if (img) {
+            selected.innerHTML = `
+                <img src="${img.src}" style="width:25px;height:25px;border-radius:6px;vertical-align:middle;margin-left:6px;">
+                ${value}
+            `;
+        } else {
+            selected.innerHTML = value;
+        }
+
+        list.style.display = "none";
+    });
+});
+
+// סגירה בלחיצה מחוץ
+document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target)) {
+        list.style.display = "none";
+    }
+});
+  
+
+
+/* =========================
+   SUBMIT + POPUP
+========================= */
+
+function showPopup() {
+
+    const overlay = document.getElementById("overlay");
+    const popup = document.getElementById("successPopup");
+
+    overlay.style.display = "block";
+    popup.style.display = "block";
+
+    setTimeout(() => {
+        overlay.style.display = "none";
+        popup.style.display = "none";
+    }, 2500);
+}
+</script>
+
+
+<style>
+    body {
+    margin: 0;
+    min-height: 100vh;
+    background-image: url("assets/backgaround/bg2.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat:repeat-y;
+    direction: ltr;
+    font-family: "secular";
+}
+   .title{
+    top: 22%;
+    width: 60vw;
+   }
+   .forword {
+    cursor: pointer;
+    position: absolute;
+    top: 85%;
+    left: 22%;
+    transform: translateX(-50%);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.forword:hover {
+    transform: translateX(-50%) scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8));
+}
+
+.forword:active {
+    transform: translateX(-50%) scale(0.95);
+}
+</style>
+</html>
