@@ -15,6 +15,7 @@
 <div class="section">
   <h3>פרטי אימון</h3>
 </div>
+  <input type="text" name="training_place" placeholder="שטח אש/מתקן">
   <input type="text" name="training_type" placeholder="סוג האימון">
   <input type="text" name="allocation_number" placeholder="מספר הקצאה">
   <input type="number" name="week_number" placeholder="מספר שבוע">
@@ -105,7 +106,7 @@ form.addEventListener("submit", async (e) => {
 
   const data = {
     // פרטי אימון
-    // place: form.place.value.trim(),
+    training_place: form.place.value.trim(),
     training_type: form.training_type.value.trim(),
     allocation_number: form.allocation_number.value.trim(),
     week_number: form.week_number.value.trim(),

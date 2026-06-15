@@ -62,7 +62,7 @@ function loadData() {
           <!-- כפתור מחיקה -->
           <button class="deleteBtn" onclick="deleteItem('${id}')">✖</button>
 
-
+          <p><b>מקום אימון:</b> ${item.training_place || ""}</p>
           <p><b>סוג אימון:</b> ${item.training_type || ""}</p>
           <p><b>מספר הקצאה:</b> ${item.allocation_number || ""}</p>
           <p><b>שבוע:</b> ${item.week_number || ""}</p>

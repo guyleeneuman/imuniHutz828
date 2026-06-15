@@ -53,7 +53,7 @@ window.exportToExcel = async function () {
 
   // הופכים ל־JSON עם כותרות בעברית
   const exportData = Object.values(data).map(item => ({
-    // "תאריך יצירה": new Date(item.createdAt || Date.now()).toLocaleString(),
+    "מקום אימון": item.training_place,
     "סוג אימון": item.training_type || "",
     "מספר הקצאה": item.allocation_number || "",
     "שבוע": item.week_number || "",
